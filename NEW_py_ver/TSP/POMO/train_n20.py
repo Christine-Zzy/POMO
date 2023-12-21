@@ -76,8 +76,8 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        # 'path': './result/saved_tsp20_model',  # directory path of pre-trained model and log files saved.
-        # 'epoch': 510,  # epoch version of pre-trained model to laod.
+        #'path': 'result/20231218_233802_train__tsp_n20',  # directory path of pre-trained model and log files saved.
+        #'epoch': 370,  # epoch version of pre-trained model to load.
 
     }
 }
