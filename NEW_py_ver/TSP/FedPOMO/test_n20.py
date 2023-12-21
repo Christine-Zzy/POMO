@@ -49,7 +49,11 @@ tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {        
+<<<<<<< HEAD
         'path': 'result/20231220_235731_train__tsp_n20',  # directory path of pre-trained model and log files saved.
+=======
+        'path': 'result/20231220_154259_train__tsp_n20',  # directory path of pre-trained model and log files saved.
+>>>>>>> origin/FedPOMO
         'epoch': 0,  # epoch version of pre-trained model to laod.
     },
     'test_episodes': 100*1000,
