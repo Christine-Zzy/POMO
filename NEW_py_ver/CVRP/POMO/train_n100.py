@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 0
+CUDA_DEVICE_NUM = 6
 
 
 ##########################################################################################
@@ -77,8 +77,8 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        # 'path': './result/saved_CVRP20_model',  # directory path of pre-trained model and log files saved.
-        # 'epoch': 2000,  # epoch version of pre-trained model to laod.
+        #'path': './result/saved_CVRP100_model',  # directory path of pre-trained model and log files saved.
+        #'epoch': 30500,  # epoch version of pre-trained model to laod.
 
     }
 }
