@@ -1,0 +1,121 @@
+[2023-12-22 03:25:18] main.py(190) : DEBUG_MODE: False
+[2023-12-22 03:25:18] main.py(191) : USE_CUDA: True, CUDA_DEVICE_NUM: 3
+[2023-12-22 03:25:18] main.py(192) : env_params{'problem_size': 20, 'pomo_size': 20}
+[2023-12-22 03:25:18] main.py(192) : model_params{'embedding_dim': 128, 'sqrt_embedding_dim': 11.313708498984761, 'encoder_layer_num': 6, 'qkv_dim': 16, 'head_num': 8, 'logit_clipping': 10, 'ff_hidden_dim': 512, 'eval_type': 'argmax'}
+[2023-12-22 03:25:18] main.py(192) : optimizer_params{'optimizer': {'lr': 0.0001, 'weight_decay': 1e-06}, 'scheduler': {'milestones': [501], 'gamma': 0.1}}
+[2023-12-22 03:25:18] main.py(192) : trainer_params{'use_cuda': True, 'cuda_device_num': 3, 'epochs': 2, 'train_episodes': 10, 'train_batch_size': 4, 'logging': {'model_save_interval': 10, 'img_save_interval': 10, 'log_image_params_1': {'json_foldername': 'log_image_style', 'filename': 'style_tsp_20.json'}, 'log_image_params_2': {'json_foldername': 'log_image_style', 'filename': 'style_loss_1.json'}}, 'model_load': {'enable': False}}
+[2023-12-22 03:25:18] main.py(192) : logger_params{'log_file': {'desc': 'train__tsp_n20', 'filename': 'run_log', 'filepath': './result/20231222_042518_train__tsp_n20'}}
+[2023-12-22 03:25:24] main.py(125) : =================== Communicate Round 1 ========================
+[2023-12-22 03:25:24] main.py(137) :  *** Client1 Start Training *** 
+[2023-12-22 03:25:24] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:26] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.3112,  Loss: -1.4070
+[2023-12-22 03:25:27] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 6.4279,  Loss: -1.8158
+[2023-12-22 03:25:27] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 6.5342,  Loss: -2.0702
+[2023-12-22 03:25:27] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 6.5342,  Loss: -2.0702
+[2023-12-22 03:25:27] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.04m], Remain[0.04m]
+[2023-12-22 03:25:27] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:28] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 6.8427,  Loss: -2.0196
+[2023-12-22 03:25:28] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.05m], Remain[0.00m]
+[2023-12-22 03:25:28] main.py(137) :  *** Client2 Start Training *** 
+[2023-12-22 03:25:28] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:28] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.4837,  Loss: -1.3167
+[2023-12-22 03:25:28] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 6.3421,  Loss: -1.9079
+[2023-12-22 03:25:29] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 6.3873,  Loss: -1.8330
+[2023-12-22 03:25:29] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 6.3873,  Loss: -1.8330
+[2023-12-22 03:25:29] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:25:29] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:29] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 7.1401,  Loss: -2.1949
+[2023-12-22 03:25:29] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:25:29] main.py(137) :  *** Client3 Start Training *** 
+[2023-12-22 03:25:29] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:30] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 7.7363,  Loss: -1.2899
+[2023-12-22 03:25:30] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 7.4664,  Loss: -1.2926
+[2023-12-22 03:25:30] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 7.6273,  Loss: -1.3975
+[2023-12-22 03:25:30] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 7.6273,  Loss: -1.3975
+[2023-12-22 03:25:30] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:25:30] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:31] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 6.8907,  Loss: -1.9038
+[2023-12-22 03:25:31] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:25:31] main.py(137) :  *** Client4 Start Training *** 
+[2023-12-22 03:25:31] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:31] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.8636,  Loss: -1.1492
+[2023-12-22 03:25:32] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 6.7103,  Loss: -2.1665
+[2023-12-22 03:25:32] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 6.7717,  Loss: -2.1612
+[2023-12-22 03:25:32] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 6.7717,  Loss: -2.1612
+[2023-12-22 03:25:32] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:25:32] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:33] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 6.7040,  Loss: -2.6683
+[2023-12-22 03:25:33] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:25:33] main.py(137) :  *** Client5 Start Training *** 
+[2023-12-22 03:25:33] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:33] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.9982,  Loss: -2.0464
+[2023-12-22 03:25:33] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 6.8212,  Loss: -2.0681
+[2023-12-22 03:25:33] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 6.9303,  Loss: -1.9225
+[2023-12-22 03:25:33] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 6.9303,  Loss: -1.9225
+[2023-12-22 03:25:33] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:25:33] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:25:34] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 6.9228,  Loss: -1.8858
+[2023-12-22 03:25:34] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:25:34] TSPTrainer.py(93) : Saving log_image
+[2023-12-22 03:25:35] TSPTrainer.py(101) : Saving trained_model
+[2023-12-22 03:25:35] TSPTrainer.py(119) :  *** Training Done *** 
+[2023-12-22 03:25:35] TSPTrainer.py(120) : Now, printing log array...
+[2023-12-22 03:25:35] utils.py(236) : train_loss_list = [-1.9225327253341675, -1.8858149528503418]
+[2023-12-22 03:25:35] utils.py(236) : train_score_list = [6.930260086059571, 6.922811126708984]
+[2023-12-22 03:26:07] main.py(125) : =================== Communicate Round 2 ========================
+[2023-12-22 03:26:07] main.py(137) :  *** Client1 Start Training *** 
+[2023-12-22 03:26:07] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:07] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.7795,  Loss: -1.9190
+[2023-12-22 03:26:08] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 6.8648,  Loss: -1.8633
+[2023-12-22 03:26:08] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 6.8562,  Loss: -1.9555
+[2023-12-22 03:26:08] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 6.8562,  Loss: -1.9555
+[2023-12-22 03:26:08] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:26:08] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:09] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 6.7969,  Loss: -1.8099
+[2023-12-22 03:26:09] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:26:09] main.py(137) :  *** Client2 Start Training *** 
+[2023-12-22 03:26:09] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:09] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.6930,  Loss: -1.5891
+[2023-12-22 03:26:09] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 7.0054,  Loss: -2.3301
+[2023-12-22 03:26:10] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 7.1108,  Loss: -2.0746
+[2023-12-22 03:26:10] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 7.1108,  Loss: -2.0746
+[2023-12-22 03:26:10] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:26:10] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:10] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 6.9221,  Loss: -2.1099
+[2023-12-22 03:26:10] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:26:10] main.py(137) :  *** Client3 Start Training *** 
+[2023-12-22 03:26:10] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:11] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 7.2223,  Loss: -1.2146
+[2023-12-22 03:26:11] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 7.0889,  Loss: -1.3792
+[2023-12-22 03:26:11] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 7.2325,  Loss: -1.5717
+[2023-12-22 03:26:11] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 7.2325,  Loss: -1.5717
+[2023-12-22 03:26:11] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:26:11] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:12] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 7.2748,  Loss: -1.8943
+[2023-12-22 03:26:12] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:26:12] main.py(137) :  *** Client4 Start Training *** 
+[2023-12-22 03:26:12] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:12] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 6.9446,  Loss: -1.4504
+[2023-12-22 03:26:13] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 6.9617,  Loss: -1.5365
+[2023-12-22 03:26:13] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 7.1261,  Loss: -1.5957
+[2023-12-22 03:26:13] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 7.1261,  Loss: -1.5957
+[2023-12-22 03:26:13] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:26:13] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:14] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 7.4971,  Loss: -1.7735
+[2023-12-22 03:26:14] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:26:14] main.py(137) :  *** Client5 Start Training *** 
+[2023-12-22 03:26:14] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:14] TSPTrainer.py(148) : Epoch   1: Train   4/ 10(40.0%)  Score: 7.6212,  Loss: -2.0680
+[2023-12-22 03:26:14] TSPTrainer.py(148) : Epoch   1: Train   8/ 10(80.0%)  Score: 7.2905,  Loss: -1.8660
+[2023-12-22 03:26:15] TSPTrainer.py(148) : Epoch   1: Train  10/ 10(100.0%)  Score: 7.2484,  Loss: -1.9013
+[2023-12-22 03:26:15] TSPTrainer.py(153) : Epoch   1: Train (100%)  Score: 7.2484,  Loss: -1.9013
+[2023-12-22 03:26:15] TSPTrainer.py(86) : Epoch   1/  2: Time Est.: Elapsed[0.01m], Remain[0.01m]
+[2023-12-22 03:26:15] TSPTrainer.py(70) : =================================================================
+[2023-12-22 03:26:15] TSPTrainer.py(153) : Epoch   2: Train (100%)  Score: 7.0476,  Loss: -1.5820
+[2023-12-22 03:26:15] TSPTrainer.py(86) : Epoch   2/  2: Time Est.: Elapsed[0.03m], Remain[0.00m]
+[2023-12-22 03:26:15] TSPTrainer.py(93) : Saving log_image
+[2023-12-22 03:26:16] TSPTrainer.py(101) : Saving trained_model
+[2023-12-22 03:26:16] TSPTrainer.py(119) :  *** Training Done *** 
+[2023-12-22 03:26:16] TSPTrainer.py(120) : Now, printing log array...
+[2023-12-22 03:26:16] utils.py(236) : train_loss_list = [-1.9012671947479247, -1.5820263624191284]
+[2023-12-22 03:26:16] utils.py(236) : train_score_list = [7.248371410369873, 7.0476234436035154]

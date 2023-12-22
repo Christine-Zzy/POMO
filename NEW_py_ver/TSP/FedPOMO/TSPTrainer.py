@@ -26,7 +26,7 @@ class TSPTrainer:
         self.trainer_params = trainer_params
 
         # result folder, logger
-        self.last_trainer = last_trainer #使FedPOMO只输出最后一个client_model的训练结果
+        self.last_trainer = last_trainer #仅让最后一个客户端模型的训练器来存储checkpoints并绘图
         self.logger = getLogger(name='trainer')
         self.result_folder = get_result_folder()
         self.result_log = LogData()
