@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 4
+CUDA_DEVICE_NUM = 3
 
 
 ##########################################################################################
@@ -23,18 +23,19 @@ sys.path.insert(0, "../..")  # for utils
 import torch
 import copy
 import logging
-from utils.utils import create_logger
+from utils.utils import *
 
 from TSPTrainer import TSPTrainer as Trainer
 from TSProblemDef import get_random_problems, augment_xy_data_by_8_fold
 from TSPModel import TSPModel as Model
-from TSPEnv import TSPEnv
 
 ##########################################################################################
+# parameters not to change
+device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
-# parameters 
-num_clients = 5
-num_rounds = 10
+# parameters  to change
+num_clients = 2
+num_rounds = 2
 
 env_params = {
     'problem_size': 20,
@@ -58,7 +59,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [501,],
+        'milestones': [501,], #这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
@@ -66,9 +67,9 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 510,
-    'train_episodes': 100 * 1000,
-    'train_batch_size': 64,
+    'epochs': 2,
+    'train_episodes': 10,
+    'train_batch_size': 4,
     'logging': {
         'model_save_interval': 10,
         'img_save_interval': 10,
@@ -96,71 +97,112 @@ logger_params = {
     }
 }
 
-
-
 ##########################################################################################
-# main
 
-if USE_CUDA:
-    cuda_device_num = trainer_params['cuda_device_num']
-    torch.cuda.set_device(cuda_device_num)
-    device = torch.device('cuda', cuda_device_num)
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
-else:
-    device = torch.device('cpu')
-    torch.set_default_tensor_type('torch.FloatTensor')
+def initialize_pomo_model(model_params):
+    model = Model(**model_params).to(device)
+    return model
 
 
 def fed_avg(models):
+    #接收模型对象列表，并返回一个更新后的全局模型对象。注意在federated_train函数中是先对模型状态字典进行操作，最后将模型字典转换为对象传输给fedavg函数。
     global_state_dict = {key: torch.mean(torch.stack([model.state_dict()[key] for model in models]), dim=0) 
                          for key in models[0].state_dict()}
     
-    global_model = Model(**model_params)
+    global_model = Model(**model_params).to(device)
     global_model.load_state_dict(global_state_dict)
     
     return global_model
 
 
-def federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer=None):
-    client_models = [copy.deepcopy(global_model) for _ in range(num_clients)]
-    
-    for _ in range(num_rounds):
+def federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer):
+    client_models = [None for _ in range(num_clients)]  # 初始化客户端模型列表
+    # 创建一个新的LogData实例用于绘图累积过程中的数据
+    accumulated_log_data = LogData()
+
+
+    # 初始化每个客户端的优化器状态字典
+    client_optimizer_states = {i: None for i in range(num_clients)}
+
+    for round in range(num_rounds):
+        logger = logging.getLogger('root')
+        logger.info("=================== Communicate Round {} ========================".format(round+1))
+        last_trainer = None #重置last_trainer = None以免在下次通信所有client_model输出result_log
+        
         # 训练每个客户端模型
         for i in range(num_clients):
+            # 创建新的 Trainer 实例
             trainer = Trainer(env_params=env_params,
                               model_params=model_params,
                               optimizer_params=optimizer_params,
                               trainer_params=trainer_params,
                               last_trainer=last_trainer)
             
+            trainer.logger.info(" *** Client{} Start Training *** ".format(i+1))
 
-            trainer.model = client_models[i]
-
-            trainer.run()
-            client_models[i] = trainer.model
-
-            if i == num_clients - 1: # 仅让最后一个客户端模型的训练器来输出result_log
+            # 仅让最后一个客户端模型的训练器来存储checkpoints并绘图
+            if i == num_clients - 1: 
                 last_trainer = trainer
+                trainer = Trainer(env_params=env_params,
+                                model_params=model_params,
+                                optimizer_params=optimizer_params,
+                                trainer_params=trainer_params,
+                                last_trainer=last_trainer) #传入更新的last_trainer
+            
+            ##global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数。
+            trainer.model.load_state_dict(copy.deepcopy(global_model.state_dict())) 
 
-        # 每次通信时聚合一次模型参数
-        global_model = fed_avg(client_models)
+            # 如果该客户端有保存的优化器状态，则加载它
+            if client_optimizer_states[i]:
+                trainer.optimizer.load_state_dict(client_optimizer_states[i])
+            
+            trainer.run()
 
-        # 将聚合后的全局模型参数更新到各客户端模型
-        for model in client_models:
-            model.load_state_dict(global_model.state_dict())
+            # 更新客户端模型状态字典
+            # 注意client_models列表现在包含的是模型的状态字典（一个OrderedDict对象），而不是模型对象本身
+            client_models[i] = copy.deepcopy(trainer.model.state_dict())
+            client_optimizer_states[i] = trainer.optimizer.state_dict()
 
-    return global_model, last_trainer
+
+        # 创建模型对象列表，用于聚合
+        client_models_objs = [Model(**model_params).to(device) for _ in range(num_clients)]
+        for model_obj, state_dict in zip(client_models_objs, client_models):
+            model_obj.load_state_dict(state_dict)
+
+        # 聚合模型参数
+        global_model = fed_avg(client_models_objs)
+
+         # 每一轮通信都保存全局模型和其他结果
+        save_global_model(global_model, last_trainer.result_folder, round)
+
+        # 在每轮通信结束时，收集最后一个客户端模型的分数和损失
+        if last_trainer is not None:
+            scores = trainer.result_log.get('train_score')
+            losses = trainer.result_log.get('train_loss')
+            
+            accumulated_log_data.append_all('train_score', scores)
+            accumulated_log_data.append_all('train_loss', losses)
+    
+    # 所有通信轮次结束后，绘制总体的训练进度图
+    image_prefix = f"{last_trainer.result_folder}/img/all_rounds"
+    util_save_log_image_with_label(image_prefix, trainer_params['logging']['log_image_params_1'],
+                                    accumulated_log_data, labels=['train_score'])
+    util_save_log_image_with_label(image_prefix, trainer_params['logging']['log_image_params_2'],
+                                    accumulated_log_data, labels=['train_loss'])
+
+    return global_model
 
 
-def save_global_model(model, save_path):
-
+def save_global_model(model, save_path, round):
     #保存全局模型到指定路径。
-    #注意全局模型没有'model_state_dict' 键，客户端训练POMO时的epoch是从1开始，所以我们设定最后保存时以checkpoint-0.pt来代表全局模型，这样方便用TSPTester来测试全局模型。
-
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    save_file_path = os.path.join(save_path, 'checkpoint-0.pt')
+    # 修改文件名以包含round参数。由于round从0开始，所以加1。
+    filename = f'globalModel-{round + 1}.pt'
+    save_file_path = os.path.join(save_path, filename)
+    # 保存模型状态字典
     torch.save(model.state_dict(), save_file_path)
+
 
 
 def _set_debug_mode():
@@ -184,13 +226,12 @@ def main():
     create_logger(**logger_params)
     _print_config()
 
-    # 初始化模型结构
-    global_model = Model(**model_params)
+    # 初始化global_model
+    global_model = initialize_pomo_model(model_params) 
 
-    global_model, last_trainer = federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds)
+    # 调用联邦学习训练函数
+    global_model = federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer=None)  # Assign the returned value to "trained_model" and "last_trainer"
 
-    # 保存全局模型和其他结果
-    save_global_model(global_model, last_trainer.result_folder)
 
 ##########################################################################################
 

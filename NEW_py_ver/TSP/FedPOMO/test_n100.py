@@ -50,6 +50,7 @@ tester_params = {
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {
         'path': './result/20231222_125445_test__tsp_n20',  # directory path of pre-trained model and log files saved.
+        'type': 'globalModel',  # 可以是 'globalModel' 或 'checkpoint'
         'epoch': 0,  # epoch version of pre-trained model to laod.
     },
     'test_episodes': 100*1000,

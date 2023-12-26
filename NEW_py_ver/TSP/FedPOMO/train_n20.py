@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 4
+CUDA_DEVICE_NUM = 0
 
 
 ##########################################################################################

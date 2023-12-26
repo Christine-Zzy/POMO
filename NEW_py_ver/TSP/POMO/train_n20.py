@@ -59,9 +59,9 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 510,
-    'train_episodes': 100 * 1000,
-    'train_batch_size': 64,
+    'epochs': 2,
+    'train_episodes': 10,
+    'train_batch_size': 4,
     'logging': {
         'model_save_interval': 10,
         'img_save_interval': 10,

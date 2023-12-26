@@ -74,9 +74,8 @@ class TSPTrainer:
 
             # Train
             train_score, train_loss = self._train_one_epoch(epoch) #共生成epochs × train_episodes × train_batch_size个随机的TSP问题实例，每个实例的节点数为problem_size
-            if self.last_trainer is not None:
-                self.result_log.append('train_score', epoch, train_score)
-                self.result_log.append('train_loss', epoch, train_loss)
+            self.result_log.append('train_score', epoch, train_score)
+            self.result_log.append('train_loss', epoch, train_loss)
 
             ############################
             # Logs & Checkpoint
@@ -91,6 +90,8 @@ class TSPTrainer:
 
             if self.last_trainer is not None and epoch > 1:  # save latest images, every epoch
                 self.logger.info("Saving log_image")
+               
+
                 image_prefix = '{}/latest'.format(self.result_folder)
                 util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_1'],
                                     self.result_log, labels=['train_score'])
@@ -182,7 +183,7 @@ class TSPTrainer:
         # size = (batch, pomo)
         loss = -advantage * log_prob  # Minus Sign: To Increase REWARD 即论文中公式3的后半部分
         # shape: (batch, pomo)
-        loss_mean = loss.mean() #结合后续的loss_mean.backward()实现了论文中的公式3
+        loss_mean = loss.mean() #结合后续的loss_mean.backward()实现了论文中的公式3，在POMO中loss大部分是负值且递增，reward也是递增，score递减
 
         # Score
         ###############################################
@@ -192,6 +193,10 @@ class TSPTrainer:
         # Step & Return
         ###############################################
         self.model.zero_grad() #将模型的梯度清零，以准备接收新一轮的梯度更新。
-        loss_mean.backward() #用于计算损失函数关于模型参数的梯度，以便进行模型参数的更新。论文算法1中的第9步,减少 loss_mean间接导致增大REWARD。
+        loss_mean.backward() #用于计算loss_mean关于模型参数的梯度
         self.optimizer.step() #基于计算得到的梯度，使用优化器更新模型的参数。这将调整模型以使其更好地适应给定的训练数据。
         return score_mean.item(), loss_mean.item() #返回本次训练步骤的两个值。score_mean.item()表示当前步骤中最大化奖励的平均值，loss_mean.item()表示当前步骤中的损失函数的值。
+    
+
+    
+ 

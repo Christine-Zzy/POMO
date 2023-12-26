@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 0
+CUDA_DEVICE_NUM = 3
 
 
 ##########################################################################################
@@ -23,7 +23,7 @@ sys.path.insert(0, "../..")  # for utils
 import torch
 import copy
 import logging
-from utils.utils import create_logger
+from utils.utils import *
 
 from TSPTrainer import TSPTrainer as Trainer
 from TSProblemDef import get_random_problems, augment_xy_data_by_8_fold
@@ -34,8 +34,8 @@ from TSPModel import TSPModel as Model
 device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
 # parameters  to change
-num_clients = 5
-num_rounds = 10
+num_clients = 2
+num_rounds = 5
 
 env_params = {
     'problem_size': 20,
@@ -105,6 +105,7 @@ def initialize_pomo_model(model_params):
 
 
 def fed_avg(models):
+    #接收模型对象列表，并返回一个更新后的全局模型对象。注意在federated_train函数中是先对模型状态字典进行操作，最后将模型字典转换为对象传输给fedavg函数。
     global_state_dict = {key: torch.mean(torch.stack([model.state_dict()[key] for model in models]), dim=0) 
                          for key in models[0].state_dict()}
     
@@ -115,7 +116,9 @@ def fed_avg(models):
 
 
 def federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer):
-    client_models = [copy.deepcopy(global_model) for _ in range(num_clients)]
+    client_models = [None for _ in range(num_clients)]  # 初始化客户端模型列表
+  
+
 
     # 初始化每个客户端的优化器状态字典
     client_optimizer_states = {i: None for i in range(num_clients)}
@@ -144,25 +147,29 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
                                 optimizer_params=optimizer_params,
                                 trainer_params=trainer_params,
                                 last_trainer=last_trainer) #传入更新的last_trainer
+            
+            ##global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数。
+            trainer.model.load_state_dict(copy.deepcopy(global_model.state_dict())) 
 
             # 如果该客户端有保存的优化器状态，则加载它
             if client_optimizer_states[i]:
                 trainer.optimizer.load_state_dict(client_optimizer_states[i])
             
-            trainer.model = client_models[i]
             trainer.run()
-            client_models[i] = trainer.model
 
-            # 保存该客户端的当前优化器状态
+            # 更新客户端模型状态字典
+            # 注意client_models列表现在包含的是模型的状态字典（一个OrderedDict对象），而不是模型对象本身
+            client_models[i] = copy.deepcopy(trainer.model.state_dict())
             client_optimizer_states[i] = trainer.optimizer.state_dict()
 
-            
-        # 聚合模型参数
-        global_model = fed_avg(client_models)
 
-        # 将聚合后的全局模型参数更新到各客户端模型
-        for model in client_models:
-            model.load_state_dict(global_model.state_dict())
+        # 创建模型对象列表，用于聚合
+        client_models_objs = [Model(**model_params).to(device) for _ in range(num_clients)]
+        for model_obj, state_dict in zip(client_models_objs, client_models):
+            model_obj.load_state_dict(state_dict)
+
+        # 聚合模型参数
+        global_model = fed_avg(client_models_objs)
 
          # 每一轮通信都保存全局模型和其他结果
         save_global_model(global_model, last_trainer.result_folder, round)
@@ -203,8 +210,8 @@ def main():
     create_logger(**logger_params)
     _print_config()
 
-    # 初始化全局模型
-    global_model = initialize_pomo_model(model_params)   
+    # 初始化global_model
+    global_model = initialize_pomo_model(model_params) 
 
     # 调用联邦学习训练函数
     global_model = federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer=None)  # Assign the returned value to "trained_model" and "last_trainer"
