@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 3
+CUDA_DEVICE_NUM = 1
 
 
 ##########################################################################################
@@ -30,8 +30,8 @@ from TSPTester import TSPTester as Tester
 # parameters
 
 env_params = {
-    'problem_size': 20,
-    'pomo_size': 20,
+    'problem_size': 50,
+    'pomo_size': 50,
 }
 
 model_params = {
@@ -49,8 +49,8 @@ tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {
-        'path': './result/20231220_033021_train__tsp_n20',  # directory path of pre-trained model and log files saved.
-        'epoch': 510,  # epoch version of pre-trained model to load.
+        'path': './result/saved_tsp50_model',  # directory path of pre-trained model and log files saved.
+        'epoch': 1000,  # epoch version of pre-trained model to load.
     },
     'test_episodes': 100*1000,
     'test_batch_size': 10000,

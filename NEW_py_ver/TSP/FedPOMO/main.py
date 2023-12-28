@@ -33,13 +33,13 @@ from TSPModel import TSPModel as Model
 # parameters not to change
 device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
-# parameters  to change
+# parameters to change
 num_clients = 2
-num_rounds = 5
+num_rounds = 10
 
 env_params = {
-    'problem_size': 20,
-    'pomo_size': 20,
+    'problem_size': 50,
+    'pomo_size': 50,
 }
 
 model_params = {
@@ -59,7 +59,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [501,], #这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
+        'milestones': [501,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
@@ -67,7 +67,7 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 10,
+    'epochs': 20,
     'train_episodes': 100*1000,
     'train_batch_size': 64,
     'logging': {
@@ -84,15 +84,15 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        # 'path': './result/saved_tsp20_model',  # directory path of pre-trained model and log files saved.
-        # 'epoch': 510,  # epoch version of pre-trained model to load.
+        #'path': './result/20231227_222700_train__tsp_n50',  # directory path of pre-trained model and log files saved.
+        #'epoch': 10,  # epoch version of pre-trained model to load.
 
     }
 }
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n20',
+        'desc': 'train__tsp_n50',
         'filename': 'run_log'
     }
 }
@@ -147,6 +147,8 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
                                 optimizer_params=optimizer_params,
                                 trainer_params=trainer_params,
                                 last_trainer=last_trainer) #传入更新的last_trainer
+                last_trainer.all_epochs_score = []
+                #last_trainer.all_epochs_loss = []
             
             ##global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数。
             trainer.model.load_state_dict(copy.deepcopy(global_model.state_dict())) 

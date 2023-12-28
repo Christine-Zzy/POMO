@@ -90,6 +90,9 @@ class TSPTrainer:
 
             if self.last_trainer is not None and epoch > 1:  # save latest images, every epoch
                 self.logger.info("Saving log_image")
+
+                # 在这里，您可以调整绘图逻辑
+                #self.aggregate_and_plot_data(epoch)
                
 
                 image_prefix = '{}/latest'.format(self.result_folder)
@@ -196,6 +199,21 @@ class TSPTrainer:
         loss_mean.backward() #用于计算loss_mean关于模型参数的梯度
         self.optimizer.step() #基于计算得到的梯度，使用优化器更新模型的参数。这将调整模型以使其更好地适应给定的训练数据。
         return score_mean.item(), loss_mean.item() #返回本次训练步骤的两个值。score_mean.item()表示当前步骤中最大化奖励的平均值，loss_mean.item()表示当前步骤中的损失函数的值。
+    
+
+    def aggregate_and_plot_data(self, epoch):
+        # 累积所有轮次的数据
+        if self.last_trainer:
+            self.last_trainer.all_epochs_score.extend(self.result_log.get('train_score'))
+            self.last_trainer.all_epochs_loss.extend(self.result_log.get('train_loss'))
+
+        # 当所有轮次完成时，绘制累积数据
+        if epoch == self.trainer_params['epochs']:
+            image_prefix = '{}/all_epochs'.format(self.result_folder)
+            util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_1'],
+                                           self.last_trainer.all_epochs_score, labels=['train_score'])
+            util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_2'],
+                                           self.last_trainer.all_epochs_loss, labels=['train_loss'])
     
 
     
