@@ -58,7 +58,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [3001,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
+        'milestones': [501,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
