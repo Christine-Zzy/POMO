@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 3
+CUDA_DEVICE_NUM = 0
 
 
 ##########################################################################################
@@ -26,7 +26,6 @@ import logging
 from utils.utils import *
 
 from TSPTrainer import TSPTrainer as Trainer
-from TSProblemDef import get_random_problems, augment_xy_data_by_8_fold
 from TSPModel import TSPModel as Model
 
 ##########################################################################################
@@ -34,12 +33,12 @@ from TSPModel import TSPModel as Model
 device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
 # parameters to change
-num_clients = 2
+num_clients = 5
 num_rounds = 10
 
 env_params = {
-    'problem_size': 50,
-    'pomo_size': 50,
+    'problem_size': 20,
+    'pomo_size': 20,
 }
 
 model_params = {
@@ -59,7 +58,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [501,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
+        'milestones': [3001,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
@@ -67,7 +66,7 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 20,
+    'epochs': 50,
     'train_episodes': 100*1000,
     'train_batch_size': 64,
     'logging': {
@@ -92,7 +91,7 @@ trainer_params = {
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n50',
+        'desc': 'train__tsp_n20',
         'filename': 'run_log'
     }
 }
