@@ -1,9 +1,9 @@
 ##########################################################################################
 # Machine Environment Config
 
-DEBUG_MODE = False 
+DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 8
+CUDA_DEVICE_NUM = 6
 
 
 ##########################################################################################
@@ -23,16 +23,15 @@ sys.path.insert(0, "../..")  # for utils
 import logging
 from utils.utils import create_logger, copy_all_src
 
-from TSPTrainer import TSPTrainer as Trainer
+from TSPTester import TSPTester as Tester
 
 
 ##########################################################################################
 # parameters
 
 env_params = {
-    'problem_size': 20,
-    'pomo_size': 20,
-    'distribution': 'mixed', #指定测试实例的分布为gaussian、cluster、mixed或uniform，如果不在这里指定则默认是uniform
+    'problem_size': 50,
+    'pomo_size': 50,
 }
 
 model_params = {
@@ -46,46 +45,26 @@ model_params = {
     'eval_type': 'argmax',
 }
 
-optimizer_params = {
-    'optimizer': {
-        'lr': 1e-4,
-        'weight_decay': 1e-6
-    },
-    'scheduler': {
-        'milestones': [501,],
-        'gamma': 0.1
-    }
-}
-
-trainer_params = {
+tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 510,
-    'train_episodes': 100*1000,
-    'train_batch_size': 64,
-    'logging': {
-        'model_save_interval': 10,
-        'img_save_interval': 10,
-        'log_image_params_1': {
-            'json_foldername': 'log_image_style',
-            'filename': 'style_tsp_20.json'
-        },
-        'log_image_params_2': {
-            'json_foldername': 'log_image_style',
-            'filename': 'style_loss_1.json'
-        },
+    'model_load': {        
+        'path': 'result/20231230_024447_train__tsp_n50',  # directory path of pre-trained model and log files saved.
+        'type': 'checkpoint',  # 可以是 'globalModel' 或 'checkpoint'
+        'epoch': 1000,  # epoch version of pre-trained model to laod.
     },
-    'model_load': {
-        'enable': False,  # enable loading pre-trained model
-        #'path': 'result/20240412_033631_train__tsp_n20_mixed',  # directory path of pre-trained model and log files saved.
-        #'epoch': 240,  # epoch version of pre-trained model to load.
-
-    }
+    'test_episodes': 100*1000,
+    'test_batch_size': 10000,
+    'augmentation_enable': True,
+    'aug_factor': 8,
+    'aug_batch_size': 1000,
 }
+if tester_params['augmentation_enable']:
+    tester_params['test_batch_size'] = tester_params['aug_batch_size']
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n20_mixed',
+        'desc': 'test__tsp_n50',
         'filename': 'run_log'
     }
 }
@@ -100,21 +79,18 @@ def main():
     create_logger(**logger_params)
     _print_config()
 
-    trainer = Trainer(env_params=env_params,
-                      model_params=model_params,
-                      optimizer_params=optimizer_params,
-                      trainer_params=trainer_params)
+    tester = Tester(env_params=env_params,
+                    model_params=model_params,
+                    tester_params=tester_params)
 
-    copy_all_src(trainer.result_folder)
+    copy_all_src(tester.result_folder)
 
-    trainer.run()
+    tester.run()
 
 
 def _set_debug_mode():
-    global trainer_params
-    trainer_params['epochs'] = 2
-    trainer_params['train_episodes'] = 10
-    trainer_params['train_batch_size'] = 4
+    global tester_params
+    tester_params['test_episodes'] = 100
 
 
 def _print_config():

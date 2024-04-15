@@ -1,7 +1,7 @@
 ##########################################################################################
 # Machine Environment Config
 
-DEBUG_MODE = False 
+DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
 CUDA_DEVICE_NUM = 8
 
@@ -30,9 +30,9 @@ from TSPTrainer import TSPTrainer as Trainer
 # parameters
 
 env_params = {
-    'problem_size': 20,
-    'pomo_size': 20,
-    'distribution': 'mixed', #指定测试实例的分布为gaussian、cluster、mixed或uniform，如果不在这里指定则默认是uniform
+    'problem_size': 50,
+    'pomo_size': 50,
+    'distribution': 'gaussian', #指定测试实例的分布为gaussian、cluster、mixed或uniform，如果不在这里指定则默认是uniform
 }
 
 model_params = {
@@ -60,7 +60,7 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 510,
+    'epochs': 1000,
     'train_episodes': 100*1000,
     'train_batch_size': 64,
     'logging': {
@@ -77,15 +77,15 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        #'path': 'result/20240412_033631_train__tsp_n20_mixed',  # directory path of pre-trained model and log files saved.
-        #'epoch': 240,  # epoch version of pre-trained model to load.
+        #'path': 'result/20240412_032606_train__tsp_n50_gaussian',  # directory path of pre-trained model and log files saved.
+        #'epoch': 90,  # epoch version of pre-trained model to load.
 
     }
 }
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n20_mixed',
+        'desc': 'train__tsp_n50_gaussian',
         'filename': 'run_log'
     }
 }

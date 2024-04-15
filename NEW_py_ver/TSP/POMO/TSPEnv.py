@@ -30,6 +30,7 @@ class TSPEnv:
         self.env_params = env_params
         self.problem_size = env_params['problem_size']
         self.pomo_size = env_params['pomo_size']
+        self.distribution = env_params.get('distribution', 'uniform')  # 默认使用均匀分布
 
         # Const @Load_Problem
         ####################################
@@ -50,8 +51,7 @@ class TSPEnv:
 
     def load_problems(self, batch_size, aug_factor=1):
         self.batch_size = batch_size
-
-        self.problems = get_random_problems(batch_size, self.problem_size)
+        self.problems = get_random_problems(batch_size, self.problem_size, distribution=self.distribution)
         # problems.shape: (batch, problem, 2)
         if aug_factor > 1:
             if aug_factor == 8:

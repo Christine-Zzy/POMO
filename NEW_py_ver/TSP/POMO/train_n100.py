@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 0
+CUDA_DEVICE_NUM = 8
 
 
 ##########################################################################################
@@ -32,6 +32,7 @@ from TSPTrainer import TSPTrainer as Trainer
 env_params = {
     'problem_size': 100,
     'pomo_size': 100,
+    'distribution': 'gaussian', #指定测试实例的分布为gaussian、cluster、mixed或uniform，如果不在这里指定则默认是uniform
 }
 
 model_params = {
@@ -84,7 +85,7 @@ trainer_params = {
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n100__3000epoch',
+        'desc': 'train__tsp_n100_gaussian',
         'filename': 'log.txt'
     }
 }
