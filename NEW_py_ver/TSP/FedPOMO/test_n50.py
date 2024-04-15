@@ -32,6 +32,7 @@ from TSPTester import TSPTester as Tester
 env_params = {
     'problem_size': 50,
     'pomo_size': 50,
+    'distribution': 'uniform', #指定测试实例的分布为gaussian、cluster或uniform，如果不在这里指定则默认是uniform
 }
 
 model_params = {
@@ -49,9 +50,9 @@ tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {        
-        'path': 'result/20231227_222700_train__tsp_n50',  # directory path of pre-trained model and log files saved.
+        'path': 'result/20240411_031251_train__tsp_n50/client_3',  # directory path of pre-trained model and log files saved.
         'type': 'checkpoint',  # 可以是 'globalModel' 或 'checkpoint'
-        'epoch': 10,  # epoch version of pre-trained model to laod.
+        'epoch': 20,  # epoch version of pre-trained model to laod.
     },
     'test_episodes': 100*1000,
     'test_batch_size': 10000,

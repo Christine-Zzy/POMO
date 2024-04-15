@@ -1,4 +1,4 @@
-
+import os
 import torch
 from logging import getLogger
 
@@ -17,7 +17,7 @@ class TSPTrainer:
                  model_params,
                  optimizer_params,
                  trainer_params,
-                 last_trainer):
+                 client_num):
 
         # save arguments
         self.env_params = env_params
@@ -26,10 +26,10 @@ class TSPTrainer:
         self.trainer_params = trainer_params
 
         # result folder, logger
-        self.last_trainer = last_trainer #仅让最后一个客户端模型的训练器来存储checkpoints并绘图
         self.logger = getLogger(name='trainer')
         self.result_folder = get_result_folder()
         self.result_log = LogData()
+        self.client_num = client_num
 
         # cuda
         USE_CUDA = self.trainer_params['use_cuda']
@@ -70,10 +70,14 @@ class TSPTrainer:
             self.logger.info('=================================================================')
 
             # LR Decay
-            self.scheduler.step()
+            # self.scheduler.step()
 
             # Train
             train_score, train_loss = self._train_one_epoch(epoch) #共生成epochs × train_episodes × train_batch_size个随机的TSP问题实例，每个实例的节点数为problem_size
+            
+            # LR Decay
+            self.scheduler.step()
+            
             self.result_log.append('train_score', epoch, train_score)
             self.result_log.append('train_loss', epoch, train_loss)
 
@@ -86,23 +90,9 @@ class TSPTrainer:
 
             all_done = (epoch == self.trainer_params['epochs'])
             model_save_interval = self.trainer_params['logging']['model_save_interval']
-            img_save_interval = self.trainer_params['logging']['img_save_interval']
 
-            if self.last_trainer is not None and epoch > 1:  # save latest images, every epoch
-                self.logger.info("Saving log_image")
-
-                # 在这里，您可以调整绘图逻辑
-                #self.aggregate_and_plot_data(epoch)
-               
-
-                image_prefix = '{}/latest'.format(self.result_folder)
-                util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_1'],
-                                    self.result_log, labels=['train_score'])
-                util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_2'],
-                                    self.result_log, labels=['train_loss'])
-
-            if self.last_trainer is not None and (all_done or (epoch % model_save_interval) == 0):
-                self.logger.info("Saving trained_model")
+            if all_done or (epoch % model_save_interval) == 0:
+                self.logger.info("Saving client_trained_model")
                 checkpoint_dict = {
                     'epoch': epoch,
                     'model_state_dict': self.model.state_dict(),
@@ -110,16 +100,11 @@ class TSPTrainer:
                     'scheduler_state_dict': self.scheduler.state_dict(),
                     'result_log': self.result_log.get_raw_data()
                 }
-                torch.save(checkpoint_dict, '{}/checkpoint-{}.pt'.format(self.result_folder, epoch))
+                ckpt_prefix = '{}/client_{}'.format(self.result_folder, self.client_num)
+                os.makedirs(ckpt_prefix, exist_ok=True)
+                torch.save(checkpoint_dict, '{}/checkpoint-{}.pt'.format(ckpt_prefix, epoch))
 
-            if self.last_trainer is not None and (all_done or (epoch % img_save_interval) == 0):
-                image_prefix = '{}/img/checkpoint-{}'.format(self.result_folder, epoch)
-                util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_1'],
-                                    self.result_log, labels=['train_score'])
-                util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_2'],
-                                    self.result_log, labels=['train_loss'])
-
-            if self.last_trainer is not None and all_done:
+            if all_done:
                 self.logger.info(" *** Training Done *** ")
                 self.logger.info("Now, printing log array...")
                 util_print_log_array(self.logger, self.result_log)
@@ -200,20 +185,6 @@ class TSPTrainer:
         self.optimizer.step() #基于计算得到的梯度，使用优化器更新模型的参数。这将调整模型以使其更好地适应给定的训练数据。
         return score_mean.item(), loss_mean.item() #返回本次训练步骤的两个值。score_mean.item()表示当前步骤中最大化奖励的平均值，loss_mean.item()表示当前步骤中的损失函数的值。
     
-
-    def aggregate_and_plot_data(self, epoch):
-        # 累积所有轮次的数据
-        if self.last_trainer:
-            self.last_trainer.all_epochs_score.extend(self.result_log.get('train_score'))
-            self.last_trainer.all_epochs_loss.extend(self.result_log.get('train_loss'))
-
-        # 当所有轮次完成时，绘制累积数据
-        if epoch == self.trainer_params['epochs']:
-            image_prefix = '{}/all_epochs'.format(self.result_folder)
-            util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_1'],
-                                           self.last_trainer.all_epochs_score, labels=['train_score'])
-            util_save_log_image_with_label(image_prefix, self.trainer_params['logging']['log_image_params_2'],
-                                           self.last_trainer.all_epochs_loss, labels=['train_loss'])
     
 
     

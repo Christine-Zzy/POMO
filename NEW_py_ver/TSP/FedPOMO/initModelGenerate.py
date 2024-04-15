@@ -1,4 +1,5 @@
 ##########################################################################################
+# 为实验记录Excel中的initPOMO产生模型，用于测试
 # Machine Environment Config
 
 DEBUG_MODE = False
@@ -21,12 +22,6 @@ sys.path.insert(0, "../..")  # for utils
 # import
 
 import torch
-import copy
-import logging
-from utils.utils import create_logger
-
-from TSPTrainer import TSPTrainer as Trainer
-from TSProblemDef import get_random_problems, augment_xy_data_by_8_fold
 from TSPModel import TSPModel as Model
 
 ##########################################################################################

@@ -1,9 +1,13 @@
+"""
+每个客户端的分布形式均不同,不再限制last_trainer
+对每个客户端都进行绘图
+"""
 ##########################################################################################
 # Machine Environment Config
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 0
+CUDA_DEVICE_NUM = 5
 
 
 ##########################################################################################
@@ -28,17 +32,19 @@ from utils.utils import *
 from TSPTrainer import TSPTrainer as Trainer
 from TSPModel import TSPModel as Model
 
+from plots_train_saved import *
+
 ##########################################################################################
 # parameters not to change
 device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
 # parameters to change
-num_clients = 5
-num_rounds = 10
+num_clients = 3 # 更改num_clients时也需要更改client_env_params
+num_rounds = 20
 
 env_params = {
-    'problem_size': 20,
-    'pomo_size': 20,
+    'problem_size': 50,
+    'pomo_size': 50,
 }
 
 model_params = {
@@ -66,20 +72,12 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 50,
+    'epochs': 20,
     'train_episodes': 100*1000,
     'train_batch_size': 64,
     'logging': {
         'model_save_interval': 10,
         'img_save_interval': 10,
-        'log_image_params_1': {
-            'json_foldername': 'log_image_style',
-            'filename': 'style_tsp_20.json'
-        },
-        'log_image_params_2': {
-            'json_foldername': 'log_image_style',
-            'filename': 'style_loss_1.json'
-        },
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
@@ -91,7 +89,7 @@ trainer_params = {
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n20',
+        'desc': 'train__tsp_n50',
         'filename': 'run_log'
     }
 }
@@ -114,10 +112,8 @@ def fed_avg(models):
     return global_model
 
 
-def federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer):
+def federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds):
     client_models = [None for _ in range(num_clients)]  # 初始化客户端模型列表
-  
-
 
     # 初始化每个客户端的优化器状态字典
     client_optimizer_states = {i: None for i in range(num_clients)}
@@ -125,30 +121,28 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
     for round in range(num_rounds):
         logger = logging.getLogger('root')
         logger.info("=================== Communicate Round {} ========================".format(round+1))
-        last_trainer = None #重置last_trainer = None以免在下次通信所有client_model输出result_log
         
         # 训练每个客户端模型
         for i in range(num_clients):
+            # 根据客户端ID修改数据分布类型
+            client_env_params = env_params.copy()
+            if i == 0:
+                client_env_params['distribution'] = 'gaussian'
+            elif i == 1:
+                client_env_params['distribution'] = 'cluster'
+            else:
+                client_env_params['distribution'] = 'uniform'
+
             # 创建新的 Trainer 实例
-            trainer = Trainer(env_params=env_params,
+            trainer = Trainer(env_params=client_env_params,
                               model_params=model_params,
                               optimizer_params=optimizer_params,
                               trainer_params=trainer_params,
-                              last_trainer=last_trainer)
+                              client_num=i+1)
             
-            trainer.logger.info(" *** Client{} Start Training *** ".format(i+1))
+            trainer.logger.info(" *** Client{}:{} Start Training *** ".format(i+1, client_env_params['distribution']))
 
-            # 仅让最后一个客户端模型的训练器来存储checkpoints并绘图
-            if i == num_clients - 1: 
-                last_trainer = trainer
-                trainer = Trainer(env_params=env_params,
-                                model_params=model_params,
-                                optimizer_params=optimizer_params,
-                                trainer_params=trainer_params,
-                                last_trainer=last_trainer) #传入更新的last_trainer
-                last_trainer.all_epochs_score = []
-                #last_trainer.all_epochs_loss = []
-            
+                
             ##global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数。
             trainer.model.load_state_dict(copy.deepcopy(global_model.state_dict())) 
 
@@ -173,7 +167,7 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
         global_model = fed_avg(client_models_objs)
 
          # 每一轮通信都保存全局模型和其他结果
-        save_global_model(global_model, last_trainer.result_folder, round)
+        save_global_model(global_model, trainer.result_folder, round)
 
     return global_model
 
@@ -215,7 +209,15 @@ def main():
     global_model = initialize_pomo_model(model_params) 
 
     # 调用联邦学习训练函数
-    global_model = federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer=None)  # Assign the returned value to "trained_model" and "last_trainer"
+    global_model = federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds)  
+
+    # 绘制各个客户端训练的图像
+    result_folder = get_result_folder()
+    run_log_path = '{}/run_log'.format(result_folder)
+    client_data = parse_log_data(run_log_path)
+    plot_scores_and_losses(client_data, result_folder)
+    logger = logging.getLogger('root')
+    logger.info("Plots are saved successfully.")
 
 
 ##########################################################################################

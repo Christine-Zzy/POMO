@@ -1,7 +1,6 @@
 
 import torch
 
-import os
 from logging import getLogger
 
 from TSPEnv import TSPEnv as Env

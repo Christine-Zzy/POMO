@@ -27,7 +27,7 @@ class TSPModel(nn.Module): #是整个模型的主要类。它包含了编码器�
         if state.current_node is None: #如果当前状态为第一次动作
             selected = torch.arange(pomo_size)[None, :].expand(batch_size, pomo_size) #模型会选择所有可能的目标（pomo_size 个），并为每个目标赋予相同的概率。然后，模型会将第一个节点的编码用于解码器的查询 q1，以便后续的动作生成过程中能够与其进行注意力计算。
             prob = torch.ones(size=(batch_size, pomo_size))
-
+            
             encoded_first_node = _get_encoding(self.encoded_nodes, selected) #使用 _get_encoding 函数来获取编码后的首个节点表示。
             # shape: (batch, pomo, embedding) # pomo即pomo_size，表示在解码器中同时处理的问题的数量。
             self.decoder.set_q1(encoded_first_node) #encoded_first_node 是经过编码器编码后的第一个节点的表示。在解码过程的第一个动作中，模型需要一个初始的查询向量，以便在生成第一个动作时聚焦于问题的起始状态。

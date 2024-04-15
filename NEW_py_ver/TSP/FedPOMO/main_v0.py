@@ -1,9 +1,15 @@
+"""
+初步实现POMO和Fedavg的结合
+客户端均是均匀分布
+有last_trainer属性,只保存最后一个客户端的ckpt
+绘图是错误的,因为只绘制了最后一个客户端最后一轮通信的几个epoch的loss和Score
+"""
 ##########################################################################################
 # Machine Environment Config
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 3
+CUDA_DEVICE_NUM = 5
 
 
 ##########################################################################################
@@ -26,16 +32,15 @@ import logging
 from utils.utils import *
 
 from TSPTrainer import TSPTrainer as Trainer
-from TSProblemDef import get_random_problems, augment_xy_data_by_8_fold
 from TSPModel import TSPModel as Model
 
 ##########################################################################################
 # parameters not to change
 device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
-# parameters  to change
+# parameters to change
 num_clients = 2
-num_rounds = 2
+num_rounds = 10
 
 env_params = {
     'problem_size': 20,
@@ -59,7 +64,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [501,], #这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
+        'milestones': [501,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
@@ -67,9 +72,9 @@ optimizer_params = {
 trainer_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
-    'epochs': 2,
-    'train_episodes': 10,
-    'train_batch_size': 4,
+    'epochs': 50,
+    'train_episodes': 100*1000,
+    'train_batch_size': 64,
     'logging': {
         'model_save_interval': 10,
         'img_save_interval': 10,
@@ -84,8 +89,8 @@ trainer_params = {
     },
     'model_load': {
         'enable': False,  # enable loading pre-trained model
-        # 'path': './result/saved_tsp20_model',  # directory path of pre-trained model and log files saved.
-        # 'epoch': 510,  # epoch version of pre-trained model to load.
+        #'path': './result/20231227_222700_train__tsp_n50',  # directory path of pre-trained model and log files saved.
+        #'epoch': 10,  # epoch version of pre-trained model to load.
 
     }
 }
@@ -117,8 +122,7 @@ def fed_avg(models):
 
 def federated_train(num_clients, global_model, env_params, model_params, optimizer_params, trainer_params, num_rounds, last_trainer):
     client_models = [None for _ in range(num_clients)]  # 初始化客户端模型列表
-    # 创建一个新的LogData实例用于绘图累积过程中的数据
-    accumulated_log_data = LogData()
+  
 
 
     # 初始化每个客户端的优化器状态字典
@@ -148,6 +152,8 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
                                 optimizer_params=optimizer_params,
                                 trainer_params=trainer_params,
                                 last_trainer=last_trainer) #传入更新的last_trainer
+                last_trainer.all_epochs_score = []
+                #last_trainer.all_epochs_loss = []
             
             ##global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数。
             trainer.model.load_state_dict(copy.deepcopy(global_model.state_dict())) 
@@ -174,21 +180,6 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
 
          # 每一轮通信都保存全局模型和其他结果
         save_global_model(global_model, last_trainer.result_folder, round)
-
-        # 在每轮通信结束时，收集最后一个客户端模型的分数和损失
-        if last_trainer is not None:
-            scores = trainer.result_log.get('train_score')
-            losses = trainer.result_log.get('train_loss')
-            
-            accumulated_log_data.append_all('train_score', scores)
-            accumulated_log_data.append_all('train_loss', losses)
-    
-    # 所有通信轮次结束后，绘制总体的训练进度图
-    image_prefix = f"{last_trainer.result_folder}/img/all_rounds"
-    util_save_log_image_with_label(image_prefix, trainer_params['logging']['log_image_params_1'],
-                                    accumulated_log_data, labels=['train_score'])
-    util_save_log_image_with_label(image_prefix, trainer_params['logging']['log_image_params_2'],
-                                    accumulated_log_data, labels=['train_loss'])
 
     return global_model
 

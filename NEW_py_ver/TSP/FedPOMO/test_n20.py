@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 1
+CUDA_DEVICE_NUM = 8
 
 
 ##########################################################################################
@@ -32,6 +32,7 @@ from TSPTester import TSPTester as Tester
 env_params = {
     'problem_size': 20,
     'pomo_size': 20,
+    'distribution': 'uniform', #指定测试实例的分布为gaussian、cluster或uniform，如果不在这里指定则默认是uniform
 }
 
 model_params = {
