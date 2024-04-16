@@ -68,7 +68,7 @@ trainer_params = {
         'img_save_interval': 100,
         'log_image_params_1': {
             'json_foldername': 'log_image_style',
-            'filename': 'style_tsp_100.json'
+            'filename': 'style_tsp_20.json'
         },
         'log_image_params_2': {
             'json_foldername': 'log_image_style',
