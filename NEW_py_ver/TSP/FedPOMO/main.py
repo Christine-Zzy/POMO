@@ -7,7 +7,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 5
+CUDA_DEVICE_NUM = 2
 
 
 ##########################################################################################
@@ -43,8 +43,8 @@ num_clients = 3 # 更改num_clients时也需要更改client_env_params
 num_rounds = 20
 
 env_params = {
-    'problem_size': 50,
-    'pomo_size': 50,
+    'problem_size': 100,
+    'pomo_size': 100,
 }
 
 model_params = {
@@ -64,7 +64,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [501,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
+        'milestones': [3001,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
@@ -89,7 +89,7 @@ trainer_params = {
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n50',
+        'desc': 'train__tsp_n100',
         'filename': 'run_log'
     }
 }
@@ -195,6 +195,7 @@ def _print_config():
     logger = logging.getLogger('root')
     logger.info('DEBUG_MODE: {}'.format(DEBUG_MODE))
     logger.info('USE_CUDA: {}, CUDA_DEVICE_NUM: {}'.format(USE_CUDA, CUDA_DEVICE_NUM))
+    logger.info('num_clients: {}, num_rounds: {}'.format(num_clients, num_rounds))
     [logger.info(g_key + "{}".format(globals()[g_key])) for g_key in globals().keys() if g_key.endswith('params')]
 
 

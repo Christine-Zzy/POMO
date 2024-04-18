@@ -32,6 +32,7 @@ from TSPTester import TSPTester as Tester
 env_params = {
     'problem_size': 100,
     'pomo_size': 100,
+    'distribution': 'uniform', #指定测试实例的分布为gaussian、cluster或uniform，如果不在这里指定则默认是uniform
 }
 
 model_params = {

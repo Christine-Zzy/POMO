@@ -10,8 +10,10 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, "..")  # for problem_def
 sys.path.insert(0, "../..")  # for utils
 from utils.utils import *
+from TSProblemDef import get_random_problems
 
-
+##########################################################################################
+# 绘制FedPOMO的训练图像
 # 解析日志文件以获取数据
 def parse_log_data(log_file):
     data = {}
@@ -90,3 +92,41 @@ result_folder = '/home/zhouzhiyan-uestc/workspace/POMO/NEW_py_ver/TSP/FedPOMO/re
 run_log_path = '{}/run_log'.format(result_folder)
 client_data = parse_log_data(run_log_path)
 plot_scores_and_losses(client_data, result_folder)
+##########################################################################################
+#绘制不同分布的问题实例
+# batch_size = 20  # 每个分布生成64个样本
+# problem_size = 5  # 仅生成1个点，以简化展示
+
+# distributions = ['uniform', 'gaussian', 'cluster', 'mixed']
+# data = {dist: get_random_problems(batch_size, problem_size, distribution=dist) for dist in distributions}
+
+# colors = {
+#     'uniform': 'orange',
+#     'gaussian': 'purple',
+#     'cluster': 'blue',
+#     'mixed': 'red'
+# }
+
+# fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+# for ax, (dist, probs) in zip(axs.ravel(), data.items()):
+#     probs = probs.view(-1, 2).numpy()  # 调整形状以便绘图
+#     ax.scatter(probs[:, 0], probs[:, 1], color=colors[dist])
+#     ax.set_title(f"{dist.capitalize()} Distribution")
+#     ax.set_xlim(0, 1)
+#     ax.set_ylim(0, 1)
+#     # 设置子图边框颜色
+#     for spine in ax.spines.values():
+#         spine.set_edgecolor(colors[dist])
+# # 指定保存路径
+# save_path = '/data/zhouzy/workspace/POMO/NEW_py_ver/TSP/FedPOMO/result/dataDistribution/distributions.png'
+
+# # 确保文件夹存在
+# import os
+# os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+# # 保存图像
+# plt.savefig(save_path)
+# plt.close(fig)  # 关闭图形以释放内存
+
+# print(f"图像已保存到：{save_path}")
+##########################################################################################

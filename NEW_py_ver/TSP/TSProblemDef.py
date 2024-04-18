@@ -2,7 +2,7 @@
 import torch
 import numpy as np
 
-#生成 batch_size 个TSP实例，即 batch_size 张不同布局的图。每个实例具有 problem_size 个节点，这些节点在二维空间中随机分布。
+#生成 batch_size 个TSP实例，每个实例具有 problem_size 个节点，这些节点在二维空间中随机分布。
 def get_random_problems(batch_size, problem_size, distribution='uniform'):
     if distribution == 'uniform':
         # 原始的均匀分布

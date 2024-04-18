@@ -3,7 +3,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 1
+CUDA_DEVICE_NUM = 6
 
 
 ##########################################################################################
@@ -30,8 +30,9 @@ from TSPTester import TSPTester as Tester
 # parameters
 
 env_params = {
-    'problem_size': 50,
-    'pomo_size': 50,
+    'problem_size': 20,
+    'pomo_size': 20,
+    'distribution': 'cluster', #指定测试实例的分布为gaussian、cluster或uniform，如果不在这里指定则默认是uniform
 }
 
 model_params = {
@@ -49,8 +50,8 @@ tester_params = {
     'use_cuda': USE_CUDA,
     'cuda_device_num': CUDA_DEVICE_NUM,
     'model_load': {
-        'path': './result/saved_tsp50_model',  # directory path of pre-trained model and log files saved.
-        'epoch': 1000,  # epoch version of pre-trained model to load.
+        'path': './result/20240417_050932_train__tsp_n20_mixed',  # directory path of pre-trained model and log files saved.
+        'epoch': 510,  # epoch version of pre-trained model to load.
     },
     'test_episodes': 100*1000,
     'test_batch_size': 10000,
