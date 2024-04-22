@@ -60,9 +60,9 @@ def plot_scores_and_losses(client_data, result_folder):
         # 绘制 Score 图
         plt.subplot(2, 1, 1)
         plt.plot(values['epoch'], values['score'], marker='o')
-        plt.title(f"{values['type']} Train Score")
+        plt.title(f"{values['type']} Train Length")
         plt.xlabel('Epoch')
-        plt.ylabel('Score')
+        plt.ylabel('Length')
 
         # 绘制 Loss 图
         plt.subplot(2, 1, 2)
