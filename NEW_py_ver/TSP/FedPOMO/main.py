@@ -7,7 +7,7 @@
 
 DEBUG_MODE = False
 USE_CUDA = not DEBUG_MODE
-CUDA_DEVICE_NUM = 2
+CUDA_DEVICE_NUM = 0
 
 
 ##########################################################################################
@@ -40,11 +40,11 @@ device = torch.device(f"cuda:{CUDA_DEVICE_NUM}" if USE_CUDA else "cpu")
 
 # parameters to change
 num_clients = 3 # 更改num_clients时也需要更改client_env_params
-num_rounds = 20
+num_rounds = 25
 
 env_params = {
-    'problem_size': 100,
-    'pomo_size': 100,
+    'problem_size': 20,
+    'pomo_size': 20,
 }
 
 model_params = {
@@ -64,7 +64,7 @@ optimizer_params = {
         'weight_decay': 1e-6
     },
     'scheduler': {
-        'milestones': [3001,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
+        'milestones': [501,], #对于tsp20和tsp50是501，对于tsp100是3001。这里获取要改一下scheduler机制，因为在FedPOMO中应该在total_epochs = epochs × num_rounds = 501 时调整学习率，而不是单独的 epochs 计数达到 501
         'gamma': 0.1
     }
 }
@@ -89,7 +89,7 @@ trainer_params = {
 
 logger_params = {
     'log_file': {
-        'desc': 'train__tsp_n100',
+        'desc': 'train__tsp_n20',
         'filename': 'run_log'
     }
 }
@@ -143,7 +143,8 @@ def federated_train(num_clients, global_model, env_params, model_params, optimiz
             trainer.logger.info(" *** Client{}:{} Start Training *** ".format(i+1, client_env_params['distribution']))
 
                 
-            ##global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数。
+            # global_model在外循环中更新，所以通信频率就是内循环结束，每个client_model训练完所设置的epochs次数
+            # 每轮通信中client_model都接受来自global_model的模型字典更新
             trainer.model.load_state_dict(copy.deepcopy(global_model.state_dict())) 
 
             # 如果该客户端有保存的优化器状态，则加载它

@@ -97,7 +97,7 @@ class TSPTester:
                 self.logger.info(" AUGMENTATION SCORE: {:.4f} ".format(aug_score_AM.avg))
 
     def _test_one_batch(self, batch_size): #用于处理一批测试样本。在进行测试之前，首先根据是否开启数据增强（augmentation）来设置增强因子 aug_factor。然后将模型设置为评估模式（eval），并用无梯度计算的上下文 torch.no_grad() 对环境和模型进行初始化。
-#另外在 _test_one_batch 函数中，存在贪心选择操作，类似于 Algorithm 2 中的 GREEDYROLLOUT。在这里，模型根据当前状态进行推断，选择动作，并执行环境交互，直到完成一个 episode。使用了 reward 计算各种分数（no-aug 和 aug 分数）。
+#另外在 _test_one_batch 函数中，存在贪心选择操作，类似于 Algorithm 2 中的 GREEDYROLLOUT。在这里，模型根据当前状态进行推断，选择动作，并执行环境交互，直到完成一轮 episode。使用了 reward 计算各种分数（no-aug 和 aug 分数）。
         # Augmentation
         ###############################################
         if self.tester_params['augmentation_enable']: #如果启用了数据增强，就会将 aug_factor 设置为大于1的值，从而生成多倍的起始节点集合。
@@ -132,6 +132,6 @@ class TSPTester:
 
         max_aug_pomo_reward, _ = max_pomo_reward.max(dim=0)  # get best results from augmentation #从所有起始节点集合和路径中选取的最高奖励值
         # shape: (batch,)
-        aug_score = -max_aug_pomo_reward.float().mean()  # negative sign to make positive value #然后通过取负号并计算平均值，得到 aug_score，表示在所有起始节点集合和路径中的平均奖励
+        aug_score = -max_aug_pomo_reward.float().mean()  # negative sign to make positive value #然后通过取负号并计算平均值，得到 aug_score，表示在所有起始节点集合和路径中的平均路径长度
 
         return no_aug_score.item(), aug_score.item() #根据测试的结果，计算不使用数据增强时的得分 no_aug_score 和使用数据增强时的得分 aug_score。

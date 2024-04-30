@@ -73,7 +73,7 @@ class TSPTrainer:
             # self.scheduler.step()
 
             # Train
-            train_score, train_loss = self._train_one_epoch(epoch) #共生成epochs × train_episodes × train_batch_size个随机的TSP问题实例，每个实例的节点数为problem_size
+            train_score, train_loss = self._train_one_epoch(epoch) #共生成epochs × train_episodes个随机的TSP问题实例，每个实例的节点数为problem_size
             
             # LR Decay
             self.scheduler.step()
@@ -122,7 +122,7 @@ class TSPTrainer:
             remaining = train_num_episode - episode
             batch_size = min(self.trainer_params['train_batch_size'], remaining)
 
-            avg_score, avg_loss = self._train_one_batch(batch_size) #每个episode都会生成batch_size个TSP问题实例
+            avg_score, avg_loss = self._train_one_batch(batch_size) #每轮episode都会生成batch_size个TSP问题实例，episode的增长步长是batch_size
             score_AM.update(avg_score, batch_size)
             loss_AM.update(avg_loss, batch_size)
 
@@ -169,13 +169,13 @@ class TSPTrainer:
         # shape: (batch, pomo)
         log_prob = prob_list.log().sum(dim=2) #log_prob 计算了每个采样轨迹中的目标选择概率的对数之和
         # size = (batch, pomo)
-        loss = -advantage * log_prob  # Minus Sign: To Increase REWARD 即论文中公式3的后半部分
+        loss = -advantage * log_prob  # Minus Sign: To Increase REWARD 即论文中公式3的后半部分取负，这里使用了梯度上升的方法，希望最大化目标函数advantage * log_prob
         # shape: (batch, pomo)
         loss_mean = loss.mean() #结合后续的loss_mean.backward()实现了论文中的公式3，在POMO中loss大部分是负值且递增，reward也是递增，score递减
 
         # Score
         ###############################################
-        max_pomo_reward, _ = reward.max(dim=1)  # get best results from pomo #从每个问题（pomo）的奖励中选择最大的奖励值（梯度上升的方法）。这是为了衡量在每个问题中获得的最佳结果。
+        max_pomo_reward, _ = reward.max(dim=1)  # get best results from pomo #从每个问题（pomo）的奖励中选择最大的奖励值。这是为了衡量在每个问题中获得的最佳结果。
         score_mean = -max_pomo_reward.float().mean()  # negative sign to make positive value #因为在TSPEnv.py中有reward = -self._get_travel_distance()，这里再取一个负号相当于得到self._get_travel_distance()
 
         # Step & Return
