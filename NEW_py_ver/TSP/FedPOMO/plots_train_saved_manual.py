@@ -64,22 +64,27 @@ def plot_scores_and_losses(client_data, result_folder):
         plt.subplot(2, 1, 1)
         plt.plot(values['epoch'][:60], values['score'][:60], marker='o')# 限制为前几个epoch的数据
         #plt.plot(values['epoch'], values['score'], marker='o')# 所有epoch的数据
-        plt.title(f"{values['type']} Train Length")
-        plt.xlabel('Epoch')
-        plt.ylabel('Length')
+        #plt.title(f"{values['type']} Train Length")
+        plt.xlabel('Epoch',fontsize=15)
+        plt.ylabel('Length',fontsize=15)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
         # 设置x轴的步长以及范围
-        max_epoch = max(values['epoch'])
         plt.xticks(range(1, 61, 2))  # 绘制前x个epoch的数据，注意中间的参数=x+1
+        max_epoch = max(values['epoch'])
         #plt.xticks(range(1, max_epoch + 1, 3))  # 绘制所有epoch的数据
 
         # 绘制 Loss 图
         plt.subplot(2, 1, 2)
         plt.plot(values['epoch'][:60], values['loss'][:60], marker='o', color='red')# 限制为前几个epoch的数据
-        #plt.plot(values['epoch'], values['loss'], marker='o', color='red')
-        plt.title(f"{values['type']} Train Loss")
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
+        #plt.plot(values['epoch'], values['loss'], marker='o', color='red')# 所有epoch的数据
+        #plt.title(f"{values['type']} Train Loss")
+        plt.xlabel('Epoch',fontsize=15)
+        plt.ylabel('Loss',fontsize=15)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
         plt.xticks(range(1, 61, 2))  # 绘制前x个epoch的数据，注意中间的参数=x+1
+        #plt.xticks(range(1, max_epoch + 1, 3))  # 绘制所有epoch的数据
 
         # 保存图像
         image_prefix = os.path.join(result_folder, f'client_{client_num}')
@@ -89,7 +94,7 @@ def plot_scores_and_losses(client_data, result_folder):
 
 
 #手动针对某run_log文件进行绘图
-result_folder = '/data/zhouzy/workspace/POMO/NEW_py_ver/TSP/FedPOMO/result/20240408_083242_train__tsp_n20'
+result_folder = '/data/zhouzy/workspace/POMO/NEW_py_ver/TSP/FedPOMO/result/20240613_175728_train__tsp_n20'
 run_log_path = '{}/run_log'.format(result_folder)
 client_data = parse_log_data(run_log_path)
 plot_scores_and_losses(client_data, result_folder)
